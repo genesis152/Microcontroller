@@ -18,7 +18,7 @@ end  Mux16la1;
 
 architecture Mux1 of Mux16la1 is
 begin
- ENABLE: process(SEL)
+ ENABLE: process(SEL,EN)
  begin
  	if EN='1' then
  		OUT_A<=I(to_integer(unsigned(SEL)));
