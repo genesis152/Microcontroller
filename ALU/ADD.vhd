@@ -16,8 +16,7 @@ begin
 			C_OUT(I) <= A(I) and B(I);
 		end loop;	
  SUM <= S;
-if (not(C_OUT = "00000000")) then CF <= '1';
-	end if;
+CF <= C_OUT(7);
 if (S="00000000") then ZF <= '1';	
 	end if;
 wait;
