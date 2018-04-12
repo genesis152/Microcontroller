@@ -1,14 +1,8 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.ALL;
-package	tip is
-	type VEC is array(15 downto 0) of STD_LOGIC_VECTOR(7 downto 0);
-end package;
-
-library IEEE;
-use IEEE.std_logic_1164.all;
-use ieee.numeric_std.ALL;
 use tip.all;
+
 entity Mux16la1 is
  port(I: in VEC;
  	  EN: in BIT;
