@@ -1,0 +1,77 @@
+[Project]
+Current Flow=Generic
+VCS=0
+version=4
+Current Config=compile
+
+[Configurations]
+compile=alu
+
+[Library]
+alu=.\alu\alu.lib
+
+[Settings]
+AccessRead=0
+AccessReadWrite=0
+AccessACCB=0
+AccessACCR=0
+AccessReadWriteSLP=0
+AccessReadTopLevel=1
+DisableC=1
+ENABLE_ADV_DATAFLOW=0
+FLOW_TYPE=HDL
+LANGUAGE=VHDL
+REFRESH_FLOW=1
+FLOWTOOLS=NONE
+FAMILY=
+
+[LocalVerilogSets]
+EnableSLP=1
+EnableDebug=0
+
+[LocalVhdlSets]
+CompileWithDebug=0
+
+[$LibMap$]
+alu=.
+Active_lib=
+
+[SpecTracer]
+WindowVisible=0
+
+[HierarchyViewer]
+HierarchyInformation=semi_sumator|ADD|0     
+ShowHide=ShowTopLevel
+Selected=
+
+[Folders]
+Name3=Makefiles
+Directory3=c:\My_Designs\proiect\alu\
+Extension3=mak
+Name4=Memory
+Directory4=c:\My_Designs\proiect\alu\
+Extension4=mem;mif;hex
+Name5=Dll Libraries
+Directory5=c:\My_Designs\proiect\alu\
+Extension5=dll
+Name6=PDF
+Directory6=c:\My_Designs\proiect\alu\
+Extension6=pdf
+Name7=HTML
+Directory7=c:\My_Designs\proiect\alu\
+Extension7=htm;html
+
+[Files]
+/ADD.vhd=-1
+/ADDCY.vhd=-1
+/SUB.vhd=-1
+/SUBCY.vhd=-1
+/AND.vhd=-1
+
+[Files.Data]
+.\src\ADD.vhd=VHDL Source Code
+.\src\ADDCY.vhd=VHDL Source Code
+.\src\SUB.vhd=VHDL Source Code
+.\src\SUBCY.vhd=VHDL Source Code
+.\src\AND.vhd=VHDL Source Code
+
