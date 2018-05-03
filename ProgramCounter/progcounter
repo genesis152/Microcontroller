@@ -1,5 +1,4 @@
---nu intra in starea 00000, nu face nimic la primul tact
---in rest functioneaza ok
+--MERGE 03/05 - testat num+stack+flow
 
 library ieee;
 use ieee.std_logic_1164.all;
