@@ -1,0 +1,77 @@
+--Merge, testat flow-num-stack 03/05
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+
+entity Flow is	  
+	port(FLOW_K : in std_logic_vector(7 downto 0);
+			 COM: in std_logic_vector(3 downto 0);
+			COND: in std_logic_vector(3 downto 0);
+		   CARRY: in std_logic;
+		   ZERO : in std_logic;
+	COUNTER_LOAD: out std_logic_vector(7 downto 0);
+	STACK_POP	: out STD_LOGIC:='0';
+	STACK_PUSH  : out STD_LOGIC:='0'; 
+	jump,call,returnn: out STD_LOGIC;
+			CLK : in STD_LOGIC);
+end Flow;
+
+architecture Flow_control of Flow is
+signal enable:std_logic;
+begin	 
+	process 
+	--variable enable:std_logic;
+	begin
+	if(COM(3 downto 1)="100") then
+		if(COM(0)='0') then enable<='1';
+		else
+		case COND(3) is
+			when '0' => enable<=ZERO  xor COND(2);
+			when '1' => enable<=CARRY xor COND(2); --aritmetica booleana
+			when others => NULL;
+		end case;
+		end if;
+		if( enable = '1') then
+			--report "DA";
+			COUNTER_LOAD<=FLOW_K;
+			case COND(1 downto 0) is
+				when "00" =>  
+							 	if(CLK='0' and CLK'EVENT) then
+									 STACK_POP<='0';
+								elsif(CLK='1' and CLK'EVENT) then
+									STACK_POP<='1';
+									returnn <= '1';
+							     jump <='0';
+								 call <='0';
+								end if;
+				when "01" => if(CLK='1' and CLK'EVENT) then 
+						    	jump    <= '1';
+							 call    <= '0';
+							 returnn <= '0';
+							 end if;
+				when "11" => 
+					       if(CLK='0' and CLK'EVENT) then
+									 STACK_PUSH<='1';
+								elsif(CLK='1' and CLK'EVENT) then
+									STACK_PUSH<='0';
+									call 	 <= '1';
+						    		returnn  <= '0';
+									jump     <= '0';
+							end if;
+				when others =>NULL;
+			end case;
+		else
+			returnn<='0';
+			call   <='0';
+			jump   <='0';
+		end if; --enable
+		else
+			returnn<='0';
+			call   <='0';
+			jump   <='0';
+		end if; --com=0;
+	wait on COM,COND,FLOW_K,ENABLE,CLK;
+	end process;
+end Flow_control;
