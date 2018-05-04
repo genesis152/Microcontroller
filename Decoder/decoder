@@ -7,10 +7,11 @@ use ieee.math_real.all;
 use tip.all;
 
 entity DECODER is
-	port(CLK   :in std_logic;
+	port(
+		--CLK   :in std_logic;
 		RESET  :in std_logic;
 		INSTR  :in std_logic_vector(15 downto 0);   
-		COMAND :out std_logic_vector(3 downto 0);	--2 biti groupa + 4 biti instructiunea
+		COMAND :out std_logic_vector(3 downto 0);	--4 biti instructiunea
 		CONST  :out std_logic_vector(7 downto 0);	--constant data
 		OPERAND:out std_logic_vector(3 downto 0));	--4 biti pentru registru (exemplu LOAD sX,kk)
 end DECODER;
@@ -18,13 +19,13 @@ end DECODER;
 architecture DECOD3 of DECODER is
 
 begin
-	process (CLK) 
+	process(INSTR) 
 		
 		variable sX: std_logic_vector(3 downto 0);
 		variable k : std_logic_vector(7 downto 0);
 		variable com:std_logic_vector(3 downto 0);
 	begin	
-	if(CLK'EVENT and CLK='1') then
+	--if(CLK'EVENT and CLK='1') then
 	case INSTR(15 downto 12)  is  
 		when "1000" | "1001" | "1010" | "1011" | "1110" | "1111" | "1101" | "0000" | "0001" | "0010" | "0011" | "0100" | "0101" | "0110" | "0111" | "1100"  => --instr sx,k & sx,sy & shi
 			sX := INSTR(11 downto 8);
@@ -40,6 +41,6 @@ begin
 	OPERAND <= sX;
 	CONST   <= k;
 	COMAND  <= com;
-	end if;
+	--end if;
 	end process;
 end architecture DECOD3;
