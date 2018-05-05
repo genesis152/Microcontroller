@@ -1,4 +1,4 @@
---MERGE BINE  - testat stack+num+flow 03/05
+--MERGE BINE
 
 
 library ieee;

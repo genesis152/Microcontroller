@@ -11,7 +11,7 @@ entity Mem_ROM is
 	port(A_ROM:in std_logic_vector(7 downto 0);
 		CS_ROM:in std_logic;  
 		CLK	  :in std_logic;
-		D_ROM:out std_logic_vector(15 downto 0));
+		D_ROM:out std_logic_vector(15 downto 0):=(others=>'Z'));
 end;
 		  
 architecture Memorie_ROM of Mem_ROM is

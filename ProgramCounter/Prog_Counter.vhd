@@ -1,4 +1,5 @@
---MERGE 03/05 - testat num+stack+flow
+--nu intra in starea 00000, nu face nimic la primul tact
+--in rest functioneaza ok
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -37,9 +38,10 @@ begin
 		if (AUX_LOAD='1') then
 			if(returnn='1') then
 				L_IN<= STACK_IN;
-			else 
-				
+			elsif(call='1' and CLK='1') then 
 				delay:=val;
+				L_IN<= FLOW_IN;
+			else
 				L_IN<= FLOW_IN;
 			end if; 
 		end if;
