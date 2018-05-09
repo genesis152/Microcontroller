@@ -6,7 +6,7 @@ entity Poarta_SI is
 port(EN: in STD_LOGIC;
 A,B: in STD_LOGIC_VECTOR(7 downto 0);
 Y: out STD_LOGIC_VECTOR(7 downto 0);
-CF,ZF: out STD_LOGIC);
+CF,ZF: inout STD_LOGIC);
 end;  
 
 architecture SI of Poarta_SI is
@@ -21,8 +21,8 @@ begin
 			ZF <= not(K(0) or K(1) or K(2) or K(3) or K(4) or K(5) or K(6) or K(7));
 		else
 			K:="ZZZZZZZZ";
-			CF<= 'Z';
-			ZF<= 'Z';
+			CF<= CF;
+			ZF<= ZF;
 		end if;
 	Y <= K;
 	end process;

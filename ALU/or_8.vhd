@@ -7,7 +7,7 @@ entity OR_8 is
 	port(EN: std_logic;
 	A,B:in std_logic_vector(7 downto 0);
 	O:out std_logic_vector(7 downto 0);
-	CARRY,ZERO: out std_logic);
+	CARRY,ZERO: inout std_logic);
 end OR_8;
 
 architecture OR_F of OR_8 is
@@ -22,8 +22,8 @@ begin
 			ZERO <= not (ORR(0) or ORR(1) or ORR(2) or ORR(3) or ORR(4) or ORR(5) or ORR(6) or ORR(7));
 		else
 			ORR := "ZZZZZZZZ";
-			CARRY <='Z';
-			ZERO <= 'Z';
+			CARRY <=CARRY;
+			ZERO <= ZERO;
 		end if;
 	O<= ORR;
 	end process;

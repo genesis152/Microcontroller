@@ -8,7 +8,7 @@ entity SHIFT is
 	SEL:in std_logic_vector(3 downto 0);	--selectia de shift (SEE XAPP213.PDF)
 	CARRY: inout std_logic;
 	REG_OUT: out std_logic_vector(7 downto 0);
-	ZERO: out std_logic);
+	ZERO: inout std_logic:='0');
 end SHIFT;
 
 architecture SHIFT_F of SHIFT is
@@ -59,10 +59,17 @@ begin
 			end case;
 		else
 			SH:="ZZZZZZZZ";
-			AUX:='Z';
+			AUX:=CARRY;
 		end if;
 		REG_OUT<=SH;
 		CARRY<=AUX;
+		if(SH = "00000000") then
+			ZERO<='1';
+		elsif(EN='1') then
+			ZERO<='0';
+		else
+			ZERO<=ZERO;
+		end if;
 	end process; 
 end SHIFT_F;
 				

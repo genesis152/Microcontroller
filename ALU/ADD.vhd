@@ -5,7 +5,7 @@ entity Semi_sumator is
 port(EN: in STD_LOGIC;
 A,B: in std_logic_vector(7 downto 0);
 SUM: out std_logic_vector(7 downto 0);
-CF,ZF:out std_logic);
+CF,ZF:inout std_logic);
 end;
 
 architecture ADD of Semi_sumator is	  
@@ -23,13 +23,13 @@ begin
 			end loop;
 		else
 			S:="ZZZZZZZZ";
-			C:="ZZZZZZZZ";
+			C:=CF & "ZZZZZZZ";
 		end if;			
 SUM <= S;
 CF <= C(7); -- Carry Flagul ia ultima valoare a lui C
 if (S="00000000") then ZF <= '1';
 	elsif EN='1' then ZF <= '0';
-	else ZF<='Z';
+	else ZF<=ZF;
 end if;
 
 end process;

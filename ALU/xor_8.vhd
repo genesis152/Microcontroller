@@ -6,7 +6,7 @@ entity XOR_8 is
 	port(EN:in STD_LOGIC;
 	A,B:in std_logic_vector(7 downto 0);
 	X:out std_logic_vector(7 downto 0);
-	ZERO,CARRY:out std_logic);
+	ZERO,CARRY:inout std_logic);
 end XOR_8;
 
 architecture XOR_F of XOR_8 is
@@ -20,8 +20,8 @@ begin
 		CARRY <='0';
 	else
 		XO := "ZZZZZZZZ";
-		ZERO<='Z';
-		CARRY<='Z';
+		ZERO<=ZERO;
+		CARRY<=CARRY;
 	end if;
 	X<=XO;
 	end process;

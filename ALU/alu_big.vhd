@@ -18,7 +18,7 @@ architecture UAL of ALU is
 port(EN: in std_logic;
 A,B: in std_logic_vector(7 downto 0);
 SUM: out std_logic_vector(7 downto 0);
-CF,ZF:out std_logic);
+CF,ZF:inout std_logic);
 end  component;
 
 component Sumator_complet
@@ -26,14 +26,14 @@ port(EN: in std_logic;
 A,B: in std_logic_VECTOR(7 downto 0);
 SUM: out std_logic_VECTOR(7 downto 0);
 CF: inout std_logic;
-ZF: out std_logic);
+ZF: inout std_logic);
 end component;		
 
 component Scazator 
 port(EN: in std_logic;
 A,B: in STD_LOGIC_VECTOR(7 downto 0);
 DIF: out STD_LOGIC_VECTOR(7 downto 0);
-CF,ZF: out STD_LOGIC);
+CF,ZF: inout STD_LOGIC);
 end component;
 
 component Scazator_complet 
@@ -41,28 +41,28 @@ port(EN: in std_logic;
 A,B: in std_logic_VECTOR(7 downto 0);
 DIF: out std_logic_VECTOR(7 downto 0);
 CF:inout std_logic;
-ZF: out std_logic);
+ZF: inout std_logic);
 end component; 
 
 component Poarta_SI
 port(EN: in std_logic;
 A,B: in std_logic_VECTOR(7 downto 0);
 Y: out std_logic_VECTOR(7 downto 0);
-CF,ZF: out std_logic);
+CF,ZF: inout std_logic);
 end component; 
 
 component XOR_8 
 	port(EN: in std_logic;
 	A,B:in std_logic_vector(7 downto 0);
 	X:out std_logic_vector(7 downto 0);
-	CARRY,ZERO:out std_logic);
+	CARRY,ZERO:inout std_logic);
 end component;	
 
 component OR_8 
 	port(EN: in std_logic;
 	A,B:in std_logic_vector(7 downto 0);
 	O:out std_logic_vector(7 downto 0);
-	CARRY,ZERO: out std_logic);
+	CARRY,ZERO: inout std_logic);
 end component;
 
 
@@ -72,7 +72,7 @@ component SHIFT
 	SEL:in std_logic_vector(3 downto 0);	--selectia de shift (SEE XAPP213.PDF)
 	CARRY: inout std_logic;
 	REG_OUT: out std_logic_vector(7 downto 0);
-	ZERO: out std_logic);
+	ZERO: inout std_logic);
 end  component;  
 
 
@@ -105,7 +105,7 @@ component LOAD
 	port(EN: in std_logic;
 	LOAD_IN	: in std_logic_vector(7 downto 0);
 	LOAD_OUT: out std_logic_vector(7 downto 0);
-	CF,ZF: out std_logic);
+	CF,ZF: inout std_logic);
 end component;
 
 signal INPUT_REG: std_logic_vector(7 downto 0):="00000000";
@@ -116,6 +116,7 @@ signal REG_A,REG_B: std_logic_vector(7 downto 0):="00000000";
 signal A,B: std_logic_vector(7 downto 0):="00000000";
 signal REZULTATE : M168;
 signal EN : std_logic;
+signal VC,VZ  : std_logic_vector(15 downto 0):=(others=>'0');
 signal EN_VEC : std_logic_vector(15 downto 0):=(others => '0');
 signal WRITE_REG : std_logic;
 begin
@@ -157,7 +158,7 @@ begin
 				if(CLK = '0' and CLK'EVENT) then
 					EN_GENERAL:= '1';
 				end if;
-				EN_AUX(to_integer(unsigned(COMMAND_IN))):= EN_GENERAL;
+				EN_AUX(to_integer(unsigned(COMMAND_IN))):= not EN_GENERAL;
 			when others => NULL;
 		end case;
 		if(EN_GENERAL = '1') then
@@ -172,16 +173,24 @@ begin
 	ATR: B<=REG_B when COMMAND_IN = "1100" else
 		 	CONST_IN;
 	 REG   : REGISTRII        port map(EN,WRITE_REG,INPUT_REG,sX,sY,REG_A,REG_B);
-	LOADD  : LOAD             port map(EN_VEC(0),B,REZULTATE(0),Carry,Zero); 			 --0000
-	ANDD   : Poarta_SI        port map(EN_VEC(1),REG_A,B,REZULTATE(1),Carry,Zero);		 --0001
-	ORR    : OR_8             port map(EN_VEC(2),REG_A,B,REZULTATE(2),Carry,Zero);		 --0010
-	XORR   : XOR_8            port map(EN_VEC(3),REG_A,B,REZULTATE(3),Carry,Zero);		 --0011
-	ADD    : Semi_sumator     port map(EN_VEC(4),REG_A,B,REZULTATE(4),Carry,Zero); 		 --0100
-	ADDCY  : Sumator_complet  port map(EN_VEC(5),REG_A,B,REZULTATE(5),Carry,Zero);		 --0101
-	SUB    : Scazator         port map(EN_VEC(6),REG_A,B,REZULTATE(6),Carry,Zero);		 --0110
-	SUBCY  : Scazator_complet port map(EN_VEC(7),REG_A,B,REZULTATE(7),Carry,Zero); 		 --0111
-	SHIFT1 : SHIFT            port map(EN_VEC(13),REG_A,shift_command,Carry,REZULTATE(13),Zero);--1101
+	LOADD  : LOAD             port map(EN_VEC(0),B,REZULTATE(0),VC(0),VZ(0)); 			 --0000
+	ANDD   : Poarta_SI        port map(EN_VEC(1),REG_A,B,REZULTATE(1),VC(1),VZ(1));		 --0001
+	ORR    : OR_8             port map(EN_VEC(2),REG_A,B,REZULTATE(2),VC(2),VZ(2));		 --0010
+	XORR   : XOR_8            port map(EN_VEC(3),REG_A,B,REZULTATE(3),VC(3),VZ(3));		 --0011
+	ADD    : Semi_sumator     port map(EN_VEC(4),REG_A,B,REZULTATE(4),VC(4),VZ(4)); 		 --0100
+	ADDCY  : Sumator_complet  port map(EN_VEC(5),REG_A,B,REZULTATE(5),VC(5),VZ(5));		 --0101
+	SUB    : Scazator         port map(EN_VEC(6),REG_A,B,REZULTATE(6),VC(6),VZ(6));		 --0110
+	SUBCY  : Scazator_complet port map(EN_VEC(7),REG_A,B,REZULTATE(7),VC(7),VZ(7)); 		 --0111
+	SHIFT1 : SHIFT            port map(EN_VEC(13),REG_A,shift_command,VC(13),REZULTATE(13),VZ(13));--1101
 	MUX_OUT: MUX16la1         port map(REZULTATE,'1',MUX_SELECT,INPUT_REG);
+	VC(15 downto 13)<=(others => 'Z');
+	VC(12 downto 8)<=(others => 'Z');
+	VZ(15 downto 13)<=(others => 'Z');
+	VZ(12 downto 8)<=(others => 'Z');
+	
+	C0:Carry<=VC(0) when (VC(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ") else VC(to_integer(unsigned(MUX_SELECT)));
+	C1:Zero <=VZ(0) when (VZ(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ") else VZ(to_integer(unsigned(MUX_SELECT)));
+	
 	REZULTATE(12 downto 8) <= (others =>"ZZZZZZZZ");
 	REZULTATE(15 downto 14) <= (others =>"ZZZZZZZZ");
 	OUT_ALU<= INPUT_REG;
