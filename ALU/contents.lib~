@@ -1,0 +1,9 @@
+194
+~E 1 "./compile/jk.vhd" 32 jk
+~A 1 "./compile/jk.vhd" 41 jk
+~E 1 "./compile/0-255.vhd" 32 \0-255\
+~A 1 "./compile/0-255.vhd" 47 \0-255\
+~E 1 "./compile/num.vhd" 32 num
+~A 1 "./compile/num.vhd" 44 num
+~E 1 "./compile/rev.vhd" 32 rev
+~A 1 "./compile/rev.vhd" 47 rev

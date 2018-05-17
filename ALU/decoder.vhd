@@ -1,0 +1,88 @@
+----codificam instructiunile:
+----6 grupe principale (4 prin fuziune), pentru fiecare cate o codificare (2 biti)
+----pentru fiecare grupa, codificam instructiunile (4 biti)
+----PROGRAM CONTROL GROUP      - 00
+----LOGICAL AND ARITM GROUP    - 01
+----SHIFT AND ROTATE GROUP     - 10
+----OUTPUT/INPUT and INTRERUPT - 11
+--
+--library ieee;
+--use ieee.std_logic_1164.all;
+--use ieee.numeric_std.all;
+--use ieee.math_real.all;
+--use tip.all;
+--
+--entity DECODER is
+--	port(CLK   :in std_logic;
+--		RESET  :in std_logic;
+--		INSTR  :in std_logic_vector(15 downto 0);   
+--		COMANDA:out std_logic_vector(5 downto 0);	--2 biti groupa + 4 biti instructiunea
+--		CONST  :out std_logic_vector(7 downto 0);	--constant data
+--		OPERAND:out std_logic_vector(3 downto 0));	--4 biti pentru registru (exemplu LOAD sX,kk)
+--end DECODER;
+--
+--architecture DECOD of DECODER is
+--
+--
+--
+--begin
+--	process (CLK) begin
+--		
+--		variable sX: std_logic_vector(3 downto 0);
+--		variable k : std_logic_vector(7 downto 0);
+--		variable com:std_logic_vector(6 downto 0);
+--		
+--	if(CLK'EVENT and CLK='1') then
+--	case INSTR(15 downto 12)  is  
+--		--00
+--		when "1000" | "1001" => 
+--			case INSTR(9 downto 8) is
+--				when "01" => null; --jump
+--				when "00" => null; --return
+--				when "11" => null; --call
+--			    when "10" => null; --null
+--				when others => null;
+--			end case;
+--		--01
+--		when ("0000" | "0001" | "0010" | "0011" | "0100" | "0101" | "0110" | "0111" | "1100" ) => --instr sx,k & sx,sy
+--			sX :=INSTR(11 downto 8);
+--			k  :=INSTR(7 downto 0);
+--			com:="00" & INSTR(15 downto 12);
+--		--when "0001" => null; --and sx,k
+--		--when "0010" => null; --or sx,k
+--		--when "0011" => null; --xor sx,k
+--		--when "0100" => null; --add sx,k
+--		--when "0101" => null; --addcy sx,k
+--		--when "0110" => null; --sub sx,k
+--		--when "0111" => null; --subcy sx,k
+--		--when "1100" =>
+--			--case INSTR(3 downto 0) is
+--			 	--when "0000" => null;
+--				--when "0001" => null; --and sx,sy
+--				--when "0010" => null; --or sx,sy
+--				--when "0011" => null; --xor sx,sy
+--				--when "0100" => null; --add sx,sy
+--				--when "0101" => null; --addcy sx,sy
+--				--when "0110" => null; --sub sx,sy
+--				--when "0111" => null; --subcy sx,sy
+--				--when others => null;
+--			--end case;
+--		--10
+--		when "1101" => 
+--			if(INSTR(3)='1') then null; --shift right
+--			elsif(INSTR(3)='0') then null; --shift left
+--			end if;
+--		--11
+--		when "1010" => null; --input sx,pp (port)
+--		when "1011" => null; --input sx,sy
+--		when "1110" => null; --output sx,pp
+--		when "1111" => null; --output sx,sy
+--		when others => null;
+--	end case;
+--	end if;
+--	end process;
+--end architecture DECOD;
+--
+--
+--
+--

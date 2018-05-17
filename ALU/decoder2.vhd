@@ -1,0 +1,72 @@
+----codificam instructiunile:
+----6 grupe principale (4 prin fuziune), pentru fiecare cate o codificare (2 biti)
+----pentru fiecare grupa, codificam instructiunile (4 biti)
+----PROGRAM CONTROL GROUP      - 00
+----LOGICAL AND ARITM GROUP    - 01
+----SHIFT AND ROTATE GROUP     - 10
+----OUTPUT/INPUT and INTRERUPT - 11
+--
+--library ieee;
+--use ieee.std_logic_1164.all;
+--use ieee.numeric_std.all;
+--use ieee.math_real.all;
+--use tip.all;
+--
+--entity DECODER is
+--	port(CLK   :in std_logic;
+--		RESET  :in std_logic;
+--		INSTR  :in std_logic_vector(15 downto 0);   
+--		COMANDA:out std_logic_vector(5 downto 0);	--2 biti groupa + 4 biti instructiunea
+--		CONST  :out std_logic_vector(3 downto 0);	--constant data
+--		OPERAND:out std_logic_vector(3 downto 0));	--4 biti pentru registru (exemplu LOAD sX,kk)
+--end DECODER;
+--
+--architecture DECOD of DECODER is
+--
+--begin
+--	process (CLK) begin
+--		
+--		variable sX: std_logic_vector(3 downto 0);
+--		variable k : std_logic_vector(7 downto 0);
+--		variable com:std_logic_vector(6 downto 0);
+--		
+--	if(CLK'EVENT and CLK='1') then
+--	case INSTR(15 downto 12)  is  
+--		--00
+--		when "1000" | "1001" => --jump call return  
+--			k  := INSTR(7 downto 0);
+--			com:= "00" & INSTR(15 downto 12);  --com= jump(100 + 1/0 conditional/neconditional)
+--			sX := INSTR(11 downto 8);		   --sX = 00 
+--			
+--		--case INSTR(9 downto 8) is
+--			--	when "01" => null; --jump
+--				--when "00" => null; --return
+--				--when "11" => null; --call
+--			    --when "10" => null; -
+--		--01
+--		when ("0000" | "0001" | "0010" | "0011" | "0100" | "0101" | "0110" | "0111" | "1100" ) => --instr sx,k & sx,sy & shi
+--			sX :=INSTR(11 downto 8);
+--			k  :=INSTR(7 downto 0);
+--			com:="01" & INSTR(15 downto 12);
+--		--10
+--		when "1101" => 	--shift
+--			sX :=INSTR(11 downto 8);
+--			k  :=INSTR(7 downto 0);
+--			com:="10" & INSTR(15 downto 12);
+--		--11
+--		when "1010" | "1011" | "1110" | "1111" => --input sx,pp (port)
+--			sX :=INSTR(11 downto 8);
+--			k  :=INSTR(7 downto 0);
+--			com:="11" & INSTR(15 downto 12);
+--		
+--		when others => null;
+--	end case;
+--	if( RESET = '1' ) then
+--		sX:=(others=>'0');
+--		k:=(others=>'0');
+--		com:=(others=>'0');
+--	end if;
+--	end if;
+--	end process;
+--end architecture DECOD2;
+--

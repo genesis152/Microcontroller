@@ -10,7 +10,8 @@ entity ALU is
 	CONST_IN :in std_logic_vector(7 downto 0);
 	OUT_ALU: out std_logic_vector(7 downto 0);
 	Zero: inout std_logic:='0';
-	Carry: inout std_logic:='0');
+	Carry: inout std_logic:='0';
+	REG_DATA: out M168);
 end;
 
 architecture UAL of ALU is
@@ -98,14 +99,16 @@ component REGISTRII
 		S_IO_A : in STD_LOGIC_VECTOR(3 downto 0);
 		S_O_B  : in STD_LOGIC_VECTOR(3 downto 0);
 		 OUT_A : out STD_LOGIC_VECTOR(7 downto 0);
-		 OUT_B : out STD_LOGIC_VECTOR(7 downto 0));
+		 OUT_B : out STD_LOGIC_VECTOR(7 downto 0);
+		 REG_DATA: out M168);
 end component;	 
 
 component LOAD 
 	port(EN: in std_logic;
 	LOAD_IN	: in std_logic_vector(7 downto 0);
 	LOAD_OUT: out std_logic_vector(7 downto 0);
-	CF,ZF: inout std_logic);
+	CF_I,ZF_I : in std_logic;
+	CF,ZF: out std_logic);
 end component;
 
 signal INPUT_REG: std_logic_vector(7 downto 0):="00000000";
@@ -118,62 +121,77 @@ signal REZULTATE : M168;
 signal EN : std_logic;
 signal VC,VZ  : std_logic_vector(15 downto 0):=(others=>'0');
 signal EN_VEC : std_logic_vector(15 downto 0):=(others => '0');
-signal WRITE_REG : std_logic;
+signal WRITE_REG : std_logic; 
+signal IC,IZ  : std_logic:='0';
+signal data   : M168;
+signal nclk   : std_logic;
 begin
 	process(COMMAND_IN,SELECT_IN,CONST_IN,CLK)
 	variable EN_AUX: std_logic_vector(15 downto 0):="0000000000000000";
-	variable EN_GENERAL: std_logic;
-	begin
+	variable EN_GENERAL: std_logic:='0';
+	begin 
+		if(COMMAND_IN = "0000" or COMMAND_IN = "0001" or COMMAND_IN = "0010" or COMMAND_IN = "0011" or COMMAND_IN = "0100" or COMMAND_IN = "0101" or
+		COMMAND_IN = "0110" or 	COMMAND_IN = "0111" or COMMAND_IN = "1100" or COMMAND_IN = "1101") then  
+			if(RISING_EDGE(CLK)) then
+				EN_GENERAL := '0';
+			end if;
+			if(FALLING_EDGE(CLK)) then
+				EN_GENERAL :='1';
+			end if;
+		end if;
 		--EN_AUX:=(others => '0');
 		case COMMAND_IN is
 			when "0001" | "0010" | "0011" | "0100" | "0101" | "0110" | "0111" | "0000" =>
 				MUX_SELECT<= COMMAND_IN;
 				sX <= SELECT_IN;
 				sY <= "ZZZZ";
-				if(CLK = '1' and CLK'EVENT) then
-					EN_GENERAL := '0';
-				end if;
-				if(CLK = '0' and CLK'EVENT) then
-					EN_GENERAL:= '1';
-				end if;
-				EN_AUX(to_integer(unsigned(COMMAND_IN))):=not EN_GENERAL;
+				--if(CLK = '1' and CLK'EVENT) then
+--					EN_GENERAL := '0';
+--				end if;
+--				if(CLK = '0' and CLK'EVENT) then
+--					EN_GENERAL:= '1';
+--				end if;
+				EN_AUX(to_integer(unsigned(COMMAND_IN))):='1';
 			when "1100"	=>
 				MUX_SELECT<=CONST_IN(3 downto 0);
 				sX <= SELECT_IN;
 				sY <= CONST_IN(7 downto 4);
-				if(CLK = '1' and CLK'EVENT) then
-					EN_GENERAL := '0';
-				end if;
-				if(CLK = '0' and CLK'EVENT) then
-					EN_GENERAL:= '1';
-				end if;
-				EN_AUX(to_integer(unsigned(CONST_IN))):=not EN_GENERAL;
+				--if(CLK = '1' and CLK'EVENT) then
+--					EN_GENERAL := '0';
+--				end if;
+--				if(CLK = '0' and CLK'EVENT) then
+--					EN_GENERAL:= '1';
+--				end if;
+				EN_AUX(to_integer(unsigned(CONST_IN(3 downto 0)))):='1';
 			when "1101" =>
 				MUX_SELECT<=COMMAND_IN;
 				sX<= SELECT_IN;
 				shift_command<= CONST_IN(3 downto 0);	
-				if(CLK = '1' and CLK'EVENT) then
-					EN_GENERAL := '0';
-				end if;
-				if(CLK = '0' and CLK'EVENT) then
-					EN_GENERAL:= '1';
-				end if;
-				EN_AUX(to_integer(unsigned(COMMAND_IN))):= not EN_GENERAL;
-			when others => NULL;
+				--if(CLK = '1' and CLK'EVENT) then
+--					EN_GENERAL := '0';
+--				end if;
+--				if(CLK = '0' and CLK'EVENT) then
+--					EN_GENERAL:= '1';
+--				end if;
+				EN_AUX(to_integer(unsigned(COMMAND_IN))):='1';
+			when others => EN_GENERAL:=EN_GENERAL;
 		end case;
 		if(EN_GENERAL = '1') then
 			WRITE_REG<='0';
 		end if;
 		if(EN_GENERAL = '0') then
 			WRITE_REG<='1';
+			IC<=VC(0);
+			IZ<=VZ(0);
 		end if;
 		EN_VEC<=EN_AUX;
 		EN<= EN_GENERAL;
 	end process;
 	ATR: B<=REG_B when COMMAND_IN = "1100" else
-		 	CONST_IN;
-	 REG   : REGISTRII        port map(EN,WRITE_REG,INPUT_REG,sX,sY,REG_A,REG_B);
-	LOADD  : LOAD             port map(EN_VEC(0),B,REZULTATE(0),VC(0),VZ(0)); 			 --0000
+		CONST_IN;
+	REG_DATA<=data;
+	REG   : entity work.REGISTERS_BLACK_BOX       port map(WRITE_REG,'1','0',INPUT_REG,sX,sY,REG_A,REG_B,data);
+	LOADD  : LOAD             port map(EN_VEC(0),B,REZULTATE(0),IC,IZ,VC(0),VZ(0)); 			 --0000
 	ANDD   : Poarta_SI        port map(EN_VEC(1),REG_A,B,REZULTATE(1),VC(1),VZ(1));		 --0001
 	ORR    : OR_8             port map(EN_VEC(2),REG_A,B,REZULTATE(2),VC(2),VZ(2));		 --0010
 	XORR   : XOR_8            port map(EN_VEC(3),REG_A,B,REZULTATE(3),VC(3),VZ(3));		 --0011
@@ -186,11 +204,15 @@ begin
 	VC(15 downto 13)<=(others => 'Z');
 	VC(12 downto 8)<=(others => 'Z');
 	VZ(15 downto 13)<=(others => 'Z');
-	VZ(12 downto 8)<=(others => 'Z');
+	VZ(12 downto 8)<=(others => 'Z');					
 	
-	C0:Carry<=VC(0) when (VC(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ") else VC(to_integer(unsigned(MUX_SELECT)));
-	C1:Zero <=VZ(0) when (VZ(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ") else VZ(to_integer(unsigned(MUX_SELECT)));
-	
+	C0:Carry<=VC(0) when (WRITE_REG='1' and (VC(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ")) 
+			else VC(to_integer(unsigned(MUX_SELECT))) when WRITE_REG='1'  
+			else Carry;
+	C1:Zero <=VZ(0) when (WRITE_REG='1' and (VZ(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ"))
+			else VZ(to_integer(unsigned(MUX_SELECT))) when WRITE_REG='1'
+			else Zero;
+
 	REZULTATE(12 downto 8) <= (others =>"ZZZZZZZZ");
 	REZULTATE(15 downto 14) <= (others =>"ZZZZZZZZ");
 	OUT_ALU<= INPUT_REG;

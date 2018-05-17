@@ -1,0 +1,10 @@
+LOAD s0 0
+LOAD s0 3
+ADD s0 6
+LOAD s1 3
+ADD  s1 4
+LOAD s2 5
+ADD s2 3
+ADD s0 s2
+ADD s1 s0
+ADD s2 s1

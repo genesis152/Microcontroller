@@ -4,7 +4,7 @@ use ieee.numeric_std.ALL;
 
 --OR
 entity OR_8 is
-	port(EN: std_logic;
+	port(EN:in std_logic;
 	A,B:in std_logic_vector(7 downto 0);
 	O:out std_logic_vector(7 downto 0);
 	CARRY,ZERO: inout std_logic);

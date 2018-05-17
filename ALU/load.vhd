@@ -5,8 +5,10 @@ entity LOAD is
 	port(EN: in STD_LOGIC;
 	LOAD_IN	: in std_logic_vector(7 downto 0);
 	LOAD_OUT: out std_logic_vector(7 downto 0);
-	CF: inout std_logic:='0';
-	ZF: inout std_logic:='0');
+	CF_I: in std_logic;
+	ZF_I: in std_logic;
+	CF: out std_logic;
+	ZF: out std_logic);
 end LOAD;
 
 architecture arh of LOAD is
@@ -18,7 +20,15 @@ begin
 		else
 			LOAD_OUT<= "ZZZZZZZZ";
 		end if;
-		CF<=CF;
-		ZF<=ZF;
+		if(CF_I = 'U') then
+			CF<='0';
+		else
+			CF<=CF_I;
+		end if;
+		if(ZF_I = 'U') then
+			ZF<='0';
+		else
+			ZF<=ZF_I; 
+		end if;
 	end process;
 end architecture;
