@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
-use tip.all;
+use work.tip.all;
 
 entity ALU is
 	port(CLK  : in STD_LOGIC;
@@ -52,7 +52,7 @@ Y: out std_logic_VECTOR(7 downto 0);
 CF,ZF: inout std_logic);
 end component; 
 
-component XOR_8 
+component XOR_8b 
 	port(EN: in std_logic;
 	A,B:in std_logic_vector(7 downto 0);
 	X:out std_logic_vector(7 downto 0);
@@ -92,16 +92,6 @@ component Mux16la1
      MUX_OUT: out STD_LOGIC_VECTOR(7 downto 0) );
 end component;	 
 
-component REGISTRII 
-	port(CLK_R : in STD_LOGIC;
-		CLK_W : in STD_LOGIC;
-		IN_REG: in STD_LOGIC_VECTOR(7 downto 0);
-		S_IO_A : in STD_LOGIC_VECTOR(3 downto 0);
-		S_O_B  : in STD_LOGIC_VECTOR(3 downto 0);
-		 OUT_A : out STD_LOGIC_VECTOR(7 downto 0);
-		 OUT_B : out STD_LOGIC_VECTOR(7 downto 0);
-		 REG_DATA: out M168);
-end component;	 
 
 component LOAD 
 	port(EN: in std_logic;
@@ -124,7 +114,7 @@ signal EN_VEC : std_logic_vector(15 downto 0):=(others => '0');
 signal WRITE_REG : std_logic; 
 signal IC,IZ  : std_logic:='0';
 signal data   : M168;
-signal nclk   : std_logic;
+
 begin
 	process(COMMAND_IN,SELECT_IN,CONST_IN,CLK)
 	variable EN_AUX: std_logic_vector(15 downto 0):="0000000000000000";
@@ -132,11 +122,12 @@ begin
 	begin 
 		if(COMMAND_IN = "0000" or COMMAND_IN = "0001" or COMMAND_IN = "0010" or COMMAND_IN = "0011" or COMMAND_IN = "0100" or COMMAND_IN = "0101" or
 		COMMAND_IN = "0110" or 	COMMAND_IN = "0111" or COMMAND_IN = "1100" or COMMAND_IN = "1101") then  
+			
 			if(RISING_EDGE(CLK)) then
 				EN_GENERAL := '0';
 			end if;
 			if(FALLING_EDGE(CLK)) then
-				EN_GENERAL :='1';
+				EN_GENERAL:= '1';
 			end if;
 		end if;
 		--EN_AUX:=(others => '0');
@@ -144,7 +135,8 @@ begin
 			when "0001" | "0010" | "0011" | "0100" | "0101" | "0110" | "0111" | "0000" =>
 				MUX_SELECT<= COMMAND_IN;
 				sX <= SELECT_IN;
-				sY <= "ZZZZ";
+				sY <= "ZZZZ"; 
+				EN <= '1';
 				--if(CLK = '1' and CLK'EVENT) then
 --					EN_GENERAL := '0';
 --				end if;
@@ -155,7 +147,8 @@ begin
 			when "1100"	=>
 				MUX_SELECT<=CONST_IN(3 downto 0);
 				sX <= SELECT_IN;
-				sY <= CONST_IN(7 downto 4);
+				sY <= CONST_IN(7 downto 4);	
+				EN <= '1';
 				--if(CLK = '1' and CLK'EVENT) then
 --					EN_GENERAL := '0';
 --				end if;
@@ -167,6 +160,7 @@ begin
 				MUX_SELECT<=COMMAND_IN;
 				sX<= SELECT_IN;
 				shift_command<= CONST_IN(3 downto 0);	
+				EN <= '1';
 				--if(CLK = '1' and CLK'EVENT) then
 --					EN_GENERAL := '0';
 --				end if;
@@ -174,7 +168,7 @@ begin
 --					EN_GENERAL:= '1';
 --				end if;
 				EN_AUX(to_integer(unsigned(COMMAND_IN))):='1';
-			when others => EN_GENERAL:=EN_GENERAL;
+			when others => EN<='0';
 		end case;
 		if(EN_GENERAL = '1') then
 			WRITE_REG<='0';
@@ -185,26 +179,26 @@ begin
 			IZ<=VZ(0);
 		end if;
 		EN_VEC<=EN_AUX;
-		EN<= EN_GENERAL;
+		--EN<= EN_GENERAL;
 	end process;
 	ATR: B<=REG_B when COMMAND_IN = "1100" else
 		CONST_IN;
 	REG_DATA<=data;
-	REG   : entity work.REGISTERS_BLACK_BOX       port map(WRITE_REG,'1','0',INPUT_REG,sX,sY,REG_A,REG_B,data);
+	 REG   : entity work.Registrii2       port map(CLK,EN,'0',INPUT_REG,sX,sY,REG_A,REG_B,data);
 	LOADD  : LOAD             port map(EN_VEC(0),B,REZULTATE(0),IC,IZ,VC(0),VZ(0)); 			 --0000
 	ANDD   : Poarta_SI        port map(EN_VEC(1),REG_A,B,REZULTATE(1),VC(1),VZ(1));		 --0001
 	ORR    : OR_8             port map(EN_VEC(2),REG_A,B,REZULTATE(2),VC(2),VZ(2));		 --0010
-	XORR   : XOR_8            port map(EN_VEC(3),REG_A,B,REZULTATE(3),VC(3),VZ(3));		 --0011
+	XORR   : XOR_8b            port map(EN_VEC(3),REG_A,B,REZULTATE(3),VC(3),VZ(3));		 --0011
 	ADD    : Semi_sumator     port map(EN_VEC(4),REG_A,B,REZULTATE(4),VC(4),VZ(4)); 		 --0100
 	ADDCY  : Sumator_complet  port map(EN_VEC(5),REG_A,B,REZULTATE(5),VC(5),VZ(5));		 --0101
 	SUB    : Scazator         port map(EN_VEC(6),REG_A,B,REZULTATE(6),VC(6),VZ(6));		 --0110
 	SUBCY  : Scazator_complet port map(EN_VEC(7),REG_A,B,REZULTATE(7),VC(7),VZ(7)); 		 --0111
 	SHIFT1 : SHIFT            port map(EN_VEC(13),REG_A,shift_command,VC(13),REZULTATE(13),VZ(13));--1101
-	MUX_OUT: MUX16la1         port map(REZULTATE,'1',MUX_SELECT,INPUT_REG);
+	MUX_OUT: MUX16la1         port map(REZULTATE,EN,MUX_SELECT,INPUT_REG);
 	VC(15 downto 13)<=(others => 'Z');
 	VC(12 downto 8)<=(others => 'Z');
 	VZ(15 downto 13)<=(others => 'Z');
-	VZ(12 downto 8)<=(others => 'Z');					
+	VZ(12 downto 8)<=(others => 'Z');
 	
 	C0:Carry<=VC(0) when (WRITE_REG='1' and (VC(to_integer(unsigned(MUX_SELECT)))='Z' or INPUT_REG="ZZZZZZZZ")) 
 			else VC(to_integer(unsigned(MUX_SELECT))) when WRITE_REG='1'  
@@ -215,6 +209,6 @@ begin
 
 	REZULTATE(12 downto 8) <= (others =>"ZZZZZZZZ");
 	REZULTATE(15 downto 14) <= (others =>"ZZZZZZZZ");
-	OUT_ALU<= INPUT_REG;
+	OUT_ALU<= INPUT_REG when CLK = '0' and EN='1';
 
 end;
